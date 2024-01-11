@@ -1,3 +1,6 @@
+# Define before mingw-binutils is build
+%bcond_with bootstrap
+
 %global debug_package %{nil}
 
 # Place RPM macros in %%{_rpmconfigdir}/macros.d if it exists (RPM 4.11+)
@@ -6,11 +9,11 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:           mingw-filesystem
-Version:        139
+Version:        147
 Release:        1%{?dist}
 Summary:        MinGW cross compiler base filesystem and environment
 
-License:        GPLv2+
+License:        GPL-2.0-or-later
 URL:            http://fedoraproject.org/wiki/MinGW
 BuildArch:      noarch
 
@@ -87,9 +90,12 @@ This environment is maintained by the Fedora MinGW SIG at:
 Summary:        MinGW cross compiler base filesystem and environment for the win32 target
 Requires:       %{name}-base = %{version}-%{release}
 # Replace mingw32-pkg-config
-Conflicts:      mingw32-pkg-config < 0.28-18
-Obsoletes:      mingw32-pkg-config < 0.28-18
-Provides:       mingw32-pkg-config = 0.28-18
+Conflicts:      mingw32-pkg-config < 0.28-17
+Obsoletes:      mingw32-pkg-config < 0.28-17
+Provides:       mingw32-pkg-config = 0.28-17
+%if %{without bootstrap}
+Requires:       mingw-binutils-generic
+%endif
 
 %description -n mingw32-filesystem
 This package contains the base filesystem layout, RPM macros and
@@ -104,10 +110,12 @@ This environment is maintained by the Fedora MinGW SIG at:
 Summary:        MinGW cross compiler base filesystem and environment for the win64 target
 Requires:       %{name}-base = %{version}-%{release}
 # Replace mingw64-pkg-config
-Conflicts:      mingw64-pkg-config < 0.28-18
-Obsoletes:      mingw64-pkg-config < 0.28-18
-Provides:       mingw64-pkg-config = 0.28-18
-
+Conflicts:      mingw64-pkg-config < 0.28-17
+Obsoletes:      mingw64-pkg-config < 0.28-17
+Provides:       mingw64-pkg-config = 0.28-17
+%if %{without bootstrap}
+Requires:       mingw-binutils-generic
+%endif
 
 %description -n mingw64-filesystem
 This package contains the base filesystem layout, RPM macros and
@@ -117,6 +125,7 @@ This environment is maintained by the Fedora MinGW SIG at:
 
   http://fedoraproject.org/wiki/SIGs/MinGW
 
+
 %package -n ucrt64-filesystem
 Summary:        MinGW cross compiler base filesystem and environment for the win64 UCRT target
 Requires:       %{name}-base = %{version}-%{release}
@@ -124,7 +133,9 @@ Requires:       %{name}-base = %{version}-%{release}
 Conflicts:      ucrt64-pkg-config < 0.28-17
 Obsoletes:      ucrt64-pkg-config < 0.28-17
 Provides:       ucrt64-pkg-config = 0.28-17
-
+%if %{without bootstrap}
+Requires:       mingw-binutils-generic
+%endif
 
 %description -n ucrt64-filesystem
 This package contains the base filesystem layout, RPM macros and
@@ -208,6 +219,8 @@ for target in i686-w64-mingw32 x86_64-w64-mingw32 x86_64-w64-mingw32ucrt; do
   mkdir -p %{buildroot}%{_prefix}/$target/sys-root/mingw/share/locale
   mkdir -p %{buildroot}%{_prefix}/$target/sys-root/mingw/share/pkgconfig
   mkdir -p %{buildroot}%{_prefix}/$target/sys-root/mingw/share/xml
+  mkdir -p %{buildroot}%{_prefix}/$target/sys-root/mingw/share/icons
+  mkdir -p %{buildroot}%{_prefix}/$target/sys-root/mingw/share/metainfo
 
   mkdir -p %{buildroot}%{_prefix}/lib/debug/%{_prefix}/$target
 done
@@ -245,7 +258,7 @@ cat %{SOURCE101} | grep -v "^#" | grep -v "^$" | while read loc ; do
     fi
     # If the locale is not official and not special, skip it
     if [ -z "$special" ]; then
-        egrep -q "[[:space:]]${locale%%_*}[[:space:]]" %{buildroot}/iso_639.tab || continue
+        grep -Eq "[[:space:]]${locale%%_*}[[:space:]]" %{buildroot}/iso_639.tab || continue
     fi
     echo "%lang(${locale}) %{_prefix}/i686-w64-mingw32/sys-root/mingw/share/locale/${loc}" >> filelist_mingw32
     echo "%lang(${locale}) %{_prefix}/x86_64-w64-mingw32/sys-root/mingw/share/locale/${loc}" >> filelist_mingw64
@@ -363,30 +376,124 @@ echo ".so man1/pkgconf.1" > %{buildroot}%{_mandir}/man1/x86_64-w64-mingw32ucrt-p
 %dir %{_prefix}/lib/debug/%{_prefix}/x86_64-w64-mingw32ucrt
 
 %changelog
-* Thu Jul 21 2022 Richard W.M. Jones <rjones@redhat.com> - 139-1
-- Rebase to Fedora Rawhide
-  resolves: rhbz#2080168
+* Fri Apr 07 2023 Sandro Mani <manisandro@gmail.com> - 147-1
+- Set mingw_env before in run_mingw_make
 
-* Fri May 06 2022 Richard W.M. Jones <rjones@redhat.com> - 136-1
-- Rebase to Fedora Rawhide
-  resolves: rhbz#2080168
+* Wed Apr 05 2023 Sandro Mani <manisandro@gmail.com> - 146-1
+- Set RUSTFLAGS in mingw env
 
-* Sat Apr 23 2022 Konstantin Kostiuk <kkostiuk@redhat.com>
-- Fix file conflicts with mingw-pkg-config
-  Related: rhbz#2031784
+* Thu Jan 19 2023 Fedora Release Engineering <releng@fedoraproject.org> - 145-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_38_Mass_Rebuild
 
-* Mon Aug 09 2021 Mohan Boddu <mboddu@redhat.com>
-- Rebuilt for IMA sigs, glibc 2.34, aarch64 flags
-  Related: rhbz#1991688
+* Sat Dec 31 2022 Sandro Mani <manisandro@gmail.com> - 145-1
+- Fix mingw-find-lang.sh exit code
+
+* Fri Dec 23 2022 Sandro Mani <manisandro@gmail.com> - 144-1
+- Add mingw-qmake-qt6 macros, drop mingw-cmake-kde4 macros
+
+* Fri Dec 09 2022 Sandro Mani <manisandro@gmail.com> - 143-1
+- Prevent mingw-find-lang.sh from clobbering previous find-lang results
+
+* Tue Oct 18 2022 Sandro Mani <manisandro@gmail.com> - 142-1
+- Require mingw-binutils-generic
+
+* Tue Sep 27 2022 Sandro Mani <manisandro@gmail.com> - 141-2
+- Replace egrep with grep -E
+
+* Sat Jul 30 2022 Sandro Mani <manisandro@gmail.com> - 141-1
+- Revert unsetting _PREFIX
+
+* Fri Jul 29 2022 Sandro Mani <manisandro@gmail.com> - 140-1
+- Don't unset _PREFIX in mingw-env macro, it leads to ${_PREFIX}
+  being empty when evaluated the lines above
+
+* Thu Jul 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 139-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
+
+* Fri May 20 2022 Sandro Mani <manisandro@gmail.com> - 139-1
+- Set CMAKE_FIND_ROOT_PATH_MODE_PACKAGE in cmake toolchain files
+
+* Wed May 11 2022 Sandro Mani <manisandro@gmail.com> - 138-1
+- Drop CMAKE_INSTALL_LIBDIR from mingw-cmake macros
+
+* Mon May 09 2022 Richard Hughes <richard@hughsie.com> 137-1
+- Include glib-mkenums in the toolchain binaries to avoid installing host GLib for building.
+
+* Tue May 03 2022 Sandro Mani <manisandro@gmail.com> - 136-1
+- Drop standard DLL provides, moved to mingw-crt
+
+* Tue May 03 2022 Sandro Mani <manisandro@gmail.com> - 135-1
+- Add host lib dirs to ld.so.conf
+
+* Thu Apr 28 2022 Sandro Mani <manisandro@gmail.com> - 134-1
+- Regenerate standard-dlls
+
+* Thu Feb 24 2022 Marc-André Lureau <marcandre.lureau@redhat.com> - 133-2
+- Fix ucrt64 toolchain filenames.
+
+* Tue Feb 22 2022 Marc-André Lureau <marcandre.lureau@redhat.com> - 133-1
+- Add ucrt64 target. Related to rhbz#2055254.
+
+* Mon Feb 21 2022 Sandro Mani <manisandro@gmail.com> - 132-1
+- Create build_winXX directories with mkdir -p
+
+* Thu Feb 10 2022 Sandro Mani <manisandro@gmail.com> - 131-2
+- Bump release
+
+* Thu Feb 10 2022 Sandro Mani <manisandro@gmail.com> - 131-1
+- Move python dependency generation to mingw32/64_python3.attr in mingw-python3 package
+- More generic mingw_pkg_name macros to also deduce mingw package name from native name
+
+* Wed Feb 02 2022 Sandro Mani <manisandro@gmail.com> - 130-1
+- Drop evaling $@ in mingw-scripts, ensure mingw macros invoked by mingw-scripts contain $@
+
+* Sat Jan 22 2022 Sandro Mani <manisandro@gmail.com> - 129-1
+- Also set FCFLAGS in mingw-env
+
+* Thu Jan 20 2022 Fedora Release Engineering <releng@fedoraproject.org>
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
+
+* Sat Jan 08 2022 Sandro Mani <manisandro@gmail.com> - 128-1
+- Add Boost_ARCHITECTURE to cmake toolchain file
+
+* Sat Jan 08 2022 Sandro Mani <manisandro@gmail.com> - 127-1
+- Correctly test whether CC/CXX/FC env-vars are set in cmake toolchain config
+
+* Wed Dec 15 2021 Sandro Mani <manisandro@gmail.com> - 126-1
+- Preserve CC/CXX/FC/RC set by ENV if set in cmake toolchain files
+
+* Sat Nov 20 2021 Sandro Mani <manisandro@gmail.com> - 125-1
+- Fix up debug dirs ownership
+
+* Wed Nov 17 2021 Sandro Mani <manisandro@gmail.com> - 124-1
+- Use relative paths in cmake/meson toolchain files to make ccache work if
+  available
+
+* Tue Sep 21 2021 Sandro Mani <manisandro@gmail.com> - 123-1
+- Autogenerate mingw-python3 BR
+- Fix mingw{32/64}.attr to also capture pyd, pc files
+
+* Thu Sep 02 2021 Sandro Mani <manisandro@gmail.com> - 122-1
+- Allow overriding CMake INCLUDE_INSTALL_DIR in MINGWXX_CMAKE_ARGS
+- Drop evaling $@ in mingw-scripts, ensure mingw macros invoked by mingw-scripts contain $@
+
+* Sun Aug 29 2021 Sandro Mani <manisandro@gmail.com> - 121-1
+- Drop use of deprecated external dependency generator
+- Fix file listed twice
+- Fix copying minidebug symbols to binary in mingw-find-debuginfo.sh
+
+* Fri Aug 27 2021 Sandro Mani <manisandro@gmail.com> - 120-1
+- Adapt mingw-find-debuginfo.sh to store debug files below /usr/lib/debug
+- See https://fedoraproject.org/wiki/Changes/F36MingwDebugLocation
+
+* Thu Jul 22 2021 Fedora Release Engineering <releng@fedoraproject.org>
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
 * Sat Jun 12 2021 Neal Gompa <ngompa13@gmail.com> - 119-1
 - Use pkgconf for pkgconfig
 
 * Mon Jun 07 2021 Sandro Mani <manisandro@gmail.com> - 118-1
 - Allow overriding CFLAGS/CXXFLAGS/LDFLAGS for %%mingw_meson
-
-* Fri Apr 16 2021 Mohan Boddu <mboddu@redhat.com>
-- Rebuilt for RHEL 9 BETA on Apr 15th 2021. Related: rhbz#1947937
 
 * Mon Feb 01 2021 Sandro Mani <manisandro@gmail.com> - 117-1
 - Filter Windows API umbrella libraries from requires

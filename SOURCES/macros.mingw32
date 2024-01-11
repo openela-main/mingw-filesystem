@@ -27,6 +27,7 @@
 %mingw32_cppflags        %{nil}
 %mingw32_fflags          -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4
 %mingw32_ldflags         -fstack-protector -lssp
+%mingw32_rustflags       -Copt-level=3 -Cdebuginfo=2 -Ccodegen-units=1 -Cforce-frame-pointers=yes --cap-lints=warn
 
 %mingw32_cc              %{mingw32_target}-gcc
 %mingw32_cxx             %{mingw32_target}-g++
@@ -50,7 +51,7 @@
 %mingw32_windmc          %{mingw32_target}-windmc
 %mingw32_windres         %{mingw32_target}-windres
 
-%mingw32_env unset $(/usr/bin/env | egrep '^(\w+)=(.*)$' | egrep -vw 'PWD|USER|LANG' | /usr/bin/cut -d= -f1); \
+%mingw32_env unset $(/usr/bin/env | grep -E '^(\w+)=(.*)$' | grep -Evw 'PWD|USER|LANG' | /usr/bin/cut -d= -f1); \
   if test -z "$PATH_ORIG" ; then \
     PATH_ORIG="$PATH"; export PATH_ORIG; \
   fi; \
@@ -77,6 +78,7 @@
   FFLAGS="${MINGW32_FFLAGS-%mingw32_fflags}"; export FFLAGS; \
   FCFLAGS="${MINGW32_FCFLAGS-%mingw32_fflags}"; export FCFLAGS; \
   LDFLAGS="${MINGW32_LDFLAGS:-%mingw32_ldflags}"; export LDFLAGS; \
+  RUSTFLAGS="${MINGW32_RUSTFLAGS:-%mingw32_rustflags}"; export RUSTFLAGS; \
   for i in `ls %{mingw32_bindir}/*|grep -- "-config\$"` ; do \
     x=`basename $i|tr "a-z+-." "A-ZX_"`; \
     declare -x $x="$i" ; export $x; \
@@ -146,11 +148,9 @@
   MINGW32_CMAKE_ARGS="-DINCLUDE_INSTALL_DIR:PATH=%{mingw32_includedir} ${MINGW32_CMAKE_ARGS}" \
   %mingw32_cmake_generic
 
-%mingw32_cmake_kde4 \
-  MINGW32_CMAKE_ARGS="-DINCLUDE_INSTALL_DIR:PATH=%{mingw32_includedir}/kde4 ${MINGW32_CMAKE_ARGS}" \
-  %mingw32_cmake_generic
-
 %mingw32_qmake_qt5 /usr/bin/mingw32-qmake-qt5
+
+%mingw32_qmake_qt6 /usr/bin/%{mingw32_target}-qmake-qt6
 
 %mingw32_meson %{mingw32_env} ; \
   unset CC CFLAGS CPPFLAGS CXX CXXFLAGS LD LDFLAGS; \\\

@@ -65,12 +65,15 @@ run_mingw_configure
 run_mingw_make()                                                    \
 {                                                                   \
 %if 0%{?mingw_build_win32} == 1                                     \
+%{mingw32_env}                                                      \
 %{__make} -C build_win32$MINGW_BUILDDIR_SUFFIX "$@" $MINGW32_MAKE_ARGS   \
 %endif                                                              \
 %if 0%{?mingw_build_win64} == 1                                     \
+%{mingw64_env}                                                      \
 %{__make} -C build_win64$MINGW_BUILDDIR_SUFFIX "$@" $MINGW64_MAKE_ARGS   \
 %endif                                                              \
 %if 0%{?mingw_build_ucrt64} == 1                                    \
+%{ucrt64_env}                                                       \
 %{__make} -C build_ucrt64$MINGW_BUILDDIR_SUFFIX "$@" $UCRT64_MAKE_ARGS   \
 %endif                                                              \
 }                                                                   \
@@ -100,29 +103,6 @@ popd                                                   \
 }                                                      \
 run_mingw_cmake
 
-%mingw_cmake_kde4                                      \
-run_mingw_cmake_kde4()                                 \
-{                                                      \
-%if 0%{?mingw_build_win32} == 1                        \
-mkdir -p build_win32$MINGW_BUILDDIR_SUFFIX                \
-pushd build_win32$MINGW_BUILDDIR_SUFFIX                \
-    %{?mingw32_cmake_kde4 "$@"}                        \
-popd                                                   \
-%endif                                                 \
-%if 0%{?mingw_build_win64} == 1                        \
-mkdir -p build_win64$MINGW_BUILDDIR_SUFFIX                \
-pushd build_win64$MINGW_BUILDDIR_SUFFIX                \
-    %{?mingw64_cmake_kde4 "$@"}                        \
-popd                                                   \
-%endif                                                 \
-%if 0%{?mingw_build_ucrt64} == 1                       \
-mkdir -p build_ucrt64$MINGW_BUILDDIR_SUFFIX               \
-pushd build_ucrt64$MINGW_BUILDDIR_SUFFIX               \
-    %{?ucrt64_cmake_kde4 "$@"}                         \
-popd                                                   \
-%endif                                                 \
-}                                                      \
-run_mingw_cmake_kde4
 
 %mingw_qmake_qt5                                       \
 run_mingw_qmake_qt5()                                  \
@@ -147,6 +127,32 @@ popd                                                   \
 %endif                                                 \
 }                                                      \
 run_mingw_qmake_qt5
+
+
+%mingw_qmake_qt6                                       \
+run_mingw_qmake_qt6()                                  \
+{                                                      \
+%if 0%{?mingw_build_win32} == 1                        \
+mkdir -p build_win32$MINGW_BUILDDIR_SUFFIX                \
+pushd build_win32$MINGW_BUILDDIR_SUFFIX                \
+    %{?mingw32_qmake_qt6} "$@"                         \
+popd                                                   \
+%endif                                                 \
+%if 0%{?mingw_build_win64} == 1                        \
+mkdir -p build_win64$MINGW_BUILDDIR_SUFFIX                \
+pushd build_win64$MINGW_BUILDDIR_SUFFIX                \
+    %{?mingw64_qmake_qt6} "$@"                         \
+popd                                                   \
+%endif                                                 \
+%if 0%{?mingw_build_ucrt64} == 1                       \
+mkdir -p build_ucrt64$MINGW_BUILDDIR_SUFFIX               \
+pushd build_ucrt64$MINGW_BUILDDIR_SUFFIX               \
+    %{?ucrt64_qmake_qt6} "$@"                          \
+popd                                                   \
+%endif                                                 \
+}                                                      \
+run_mingw_qmake_qt6
+
 
 %mingw_meson                                           \
 run_mingw_meson()                                      \

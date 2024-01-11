@@ -49,7 +49,7 @@
 %ucrt64_windmc          %{ucrt64_target}-windmc
 %ucrt64_windres         %{ucrt64_target}-windres
 
-%ucrt64_env unset $(/usr/bin/env | egrep '^(\w+)=(.*)$' | egrep -vw 'PWD|USER|LANG' | /usr/bin/cut -d= -f1); \
+%ucrt64_env unset $(/usr/bin/env | grep -E '^(\w+)=(.*)$' | grep -Evw 'PWD|USER|LANG' | /usr/bin/cut -d= -f1); \
   if test -z "$PATH_ORIG" ; then \
     PATH_ORIG="$PATH"; export PATH_ORIG; \
   fi; \
