@@ -162,7 +162,7 @@
   if test -f meson.build; then __mingw64_topdir=.; \\\
   elif test -f ../meson.build; then __mingw64_topdir=..; \\\
   else __mingw64_topdir=""; fi; \\\
-  %__meson \\\
+  %__meson setup \\\
         --cross-file /usr/share/mingw/toolchain-mingw64.meson \\\
         --default-library shared \\\
         --prefix %{mingw64_prefix} \\\

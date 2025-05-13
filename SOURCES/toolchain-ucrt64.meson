@@ -2,9 +2,11 @@
 c = 'x86_64-w64-mingw32ucrt-gcc'
 cpp = 'x86_64-w64-mingw32ucrt-g++'
 fortran = 'x86_64-w64-mingw32ucrt-gfortran'
-rust = ['rustc', '--target', 'x86_64-pc-windows-msvc', '-C', 'linker=/usr/bin/x86_64-w64-mingw32ucrt-gcc']
+rust = ['rustc', '--target', 'x86_64-pc-windows-gnu']
+# XXX: there is no mingw/rustc target for UCRT yet, but this should do
+rust_ld = 'x86_64-w64-mingw32ucrt-gcc'
 ar = '/usr/bin/x86_64-w64-mingw32ucrt-ar'
-pkgconfig = '/usr/bin/x86_64-w64-mingw32ucrt-pkg-config'
+pkg-config = '/usr/bin/x86_64-w64-mingw32ucrt-pkg-config'
 ranlib = '/usr/bin/x86_64-w64-mingw32ucrt-ranlib'
 strip = '/usr/bin/x86_64-w64-mingw32ucrt-strip'
 windres = '/usr/bin/x86_64-w64-mingw32ucrt-windres'

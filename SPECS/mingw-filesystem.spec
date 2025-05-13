@@ -10,7 +10,7 @@
 
 Name:           mingw-filesystem
 Version:        148
-Release:        3%{?dist}
+Release:        7%{?dist}
 Summary:        MinGW cross compiler base filesystem and environment
 
 License:        GPL-2.0-or-later
@@ -378,6 +378,18 @@ echo ".so man1/pkgconf.1" > %{buildroot}%{_mandir}/man1/x86_64-w64-mingw32ucrt-p
 %dir %{_prefix}/lib/debug/%{_prefix}/x86_64-w64-mingw32ucrt
 
 %changelog
+* Sat Sep 07 2024 Zephyr Lykos <fedora@mochaa.ws> - 148-7
+- Fix meson deprecation warnings
+
+* Thu Jul 18 2024 Fedora Release Engineering <releng@fedoraproject.org> - 148-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_41_Mass_Rebuild
+
+* Wed Jun 12 2024 Sandro Mani <manisandro@gmail.com> - 148-5
+- Rust fixes
+
+* Thu Jun 06 2024 Sandro Mani <manisandro@gmail.com> - 148-4
+- Set __debug_package 1 in %mingw_debug_package (#2284193)
+
 * Thu Jan 25 2024 Fedora Release Engineering <releng@fedoraproject.org> - 148-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
 

@@ -17,6 +17,7 @@
 %mingw_debug_install_post   %{mingw_finddebuginfo} %{_builddir}/%{?buildsubdir} %{mingw_build_targets}
 
 %mingw_debug_package               \
+%global __debug_package 1          \
 %if 0%{?mingw_build_win32} == 1    \
 %{?mingw32_debug_package}          \
 %endif                             \
